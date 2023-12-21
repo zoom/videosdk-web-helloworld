@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zoom VideoSDK Quickstart</title>
+  </head>
+  <body>
+    <h1>Zoom VideoSDK Quickstart</h1>
+    <button id="start-btn">Join Meeting</button>
+    <p>you:</p>
+    <video id="my-self-view-video" width="480" height="270"></video>
+    <canvas id="my-self-view-canvas" width="480" height="270"></canvas>
+    <p>remote users:</p>
+    <canvas id="participant-videos-canvas" width="480" height="270"></canvas>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
