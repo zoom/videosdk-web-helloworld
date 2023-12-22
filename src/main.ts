@@ -1,51 +1,56 @@
 import ZoomVideo from "@zoom/videosdk";
 import { generateSignature } from "./sign";
+import "./style.css";
 
-const sessionName = "TestASD";
+const sessionName = "TestSessionOne";
 const role = 1;
-
+const vidHeight = 270;
+const vidWidth = 480;
 const remoteCanvasEle = document.querySelector("#participant-videos-canvas") as HTMLCanvasElement;
-const localVideoEle = document.querySelector("#my-self-view-video") as HTMLVideoElement;
+const client = ZoomVideo.createClient();
 
 const startCall = async () => {
-
-  const client = ZoomVideo.createClient();
   await client.init("en-US", "Global", { patchJsMedia: true });
   const token = generateSignature(sessionName, role);
-  console.log(token);
-
-
-  client.on("peer-video-state-change", (payload) => {
-    if (payload.action === "Start") {
-      console.log("Start", payload.userId);
-      currentStream.renderVideo(remoteCanvasEle, payload.userId, 480, 270, 0, 0, 3);
-    } else if (payload.action === "Stop") {
-      currentStream.stopRenderVideo(remoteCanvasEle, payload.userId);
-    }
-  });
-
+  client.on("peer-video-state-change", renderVideo);
   await client.join(sessionName, token, "Test");
+  await client.getMediaStream().startVideo();
+  renderVideo();
+}
 
+const renderVideo = async () => {
+  const userList = client.getAllUser().reverse();
+  const numberOfUser = userList.length;
   try {
-    const userList = client.getAllUser();
-    for (const user of userList) {
-      console.log("Start", user.userId);
-      if (user.bVideoOn) {
-        client.getMediaStream().renderVideo(remoteCanvasEle, user.userId, 480, 270, 0, 0, 3);
-      }
-    }
+    remoteCanvasEle.style.height = `${vidHeight * numberOfUser}px`;
+    remoteCanvasEle.height = vidHeight * numberOfUser;
   } catch (e) {
-    console.log(e);
+    client.getMediaStream()?.updateVideoCanvasDimension(remoteCanvasEle, vidWidth, vidHeight * numberOfUser);
   }
-
-  const currentStream = client.getMediaStream();
-
-  if (currentStream.isRenderSelfViewWithVideoElement()) {
-    await currentStream.startVideo({ videoElement: localVideoEle });
-  } else {
-    console.log("video not started, video element is not supported");
+  for await (const [index, user] of userList.entries()) {
+    if (user.bVideoOn) {
+      await client.getMediaStream().renderVideo(remoteCanvasEle, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 3);
+    }
   }
 }
 
+// audio logic
+
+const leaveCall = async () => await client.leave();
+
+// UI Logic
 const startBtn = document.querySelector("#start-btn") as HTMLButtonElement;
-startBtn.addEventListener("click", startCall);
+const stopBtn = document.querySelector("#stop-btn") as HTMLButtonElement;
+startBtn.addEventListener("click", async () => {
+  startBtn.innerHTML = "Connecting...";
+  startBtn.disabled = true;
+  await startCall();
+  startBtn.innerHTML = "Connected";
+  startBtn.style.display = "none";
+  stopBtn.style.display = "block";
+});
+stopBtn.addEventListener("click", async () => {
+  await leaveCall();
+  remoteCanvasEle.remove();
+  stopBtn.innerHTML = "Disconnected";
+});

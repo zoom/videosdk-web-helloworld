@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -6,14 +6,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zoom VideoSDK Quickstart</title>
   </head>
-  <body>
-    <h1>Zoom VideoSDK Quickstart</h1>
-    <button id="start-btn">Join Meeting</button>
-    <p>you:</p>
-    <video id="my-self-view-video" width="480" height="270"></video>
-    <canvas id="my-self-view-canvas" width="480" height="270"></canvas>
-    <p>remote users:</p>
-    <canvas id="participant-videos-canvas" width="480" height="270"></canvas>
+  <body class="flex flex-1 flex-col">
+    <h1 class="text-4xl font-bold text-center p-8">Zoom VideoSDK Quickstart</h1>
+    <div class="flex flex-row self-center">
+    <button
+      id="start-btn"
+      class="bg-blue-500 text-white font-bold py-2 px-4 rounded mb-4 w-64 self-center"
+    >
+      Join Meeting
+    </button>
+    <button
+      id="stop-btn"
+      class="hidden bg-blue-500 text-white font-bold py-2 px-4 rounded mb-4 w-64 self-center"
+    >
+      Leave Meeting
+    </button>
+  </div>
+    <div class="p-8 text-center flex flex-1 flex-col items-center just">
+      <p>Videos</p>
+      <canvas class="w-[480px]" id="participant-videos-canvas" width="480" height="1000"></canvas>
+    </div>
+    <script src="coi-serviceworker.js"></script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
