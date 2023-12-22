@@ -4,6 +4,8 @@ Use of this sample app is subject to our [Terms of Use](https://explore.zoom.us/
 
 The [Zoom Video SDK for web](https://developers.zoom.us/docs/video-sdk/web/) enables you to build custom video experiences on a webpage with Zoom's core technology through a highly optimized WebAssembly module.
 
+You can try out the [live demo](https://zoom-webdemo.vercel.app) to see the Video SDK in action.
+
 ## Installation
 
 To get started, clone the repo:
