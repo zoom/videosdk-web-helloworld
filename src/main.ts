@@ -2,20 +2,20 @@ import ZoomVideo from "@zoom/videosdk";
 import { generateSignature, useWorkAroundForSafari, } from "./utils";
 import "./style.css";
 
-const sessionName = "TestSessionOne";
+let sdkKey = '';
+let sdkSecret = '';
+const topic = "TestOne";
 const role = 1;
 const vidHeight = 270;
 const vidWidth = 480;
-const remoteCanvasEle = document.querySelector("#participant-videos-canvas") as HTMLCanvasElement;
 const client = ZoomVideo.createClient();
-let sdkKey = '';
-let sdkSecret = '';
+const videoCanvas = document.querySelector("#participant-videos-canvas") as HTMLCanvasElement;
 
 const startCall = async () => {
-  const token = generateSignature(sessionName, role, sdkKey, sdkSecret);
+  const token = generateSignature(topic, role, sdkKey, sdkSecret);
   await client.init("en-US", "Global", { patchJsMedia: true });
   client.on("peer-video-state-change", renderVideo);
-  await client.join(sessionName, token, "Test");
+  await client.join(topic, token, "Test");
   const mediaStream = client.getMediaStream();
   // @ts-expect-error https://stackoverflow.com/questions/7944460/detect-safari-browser/42189492#42189492
   window.safari ? await useWorkAroundForSafari(client) : await mediaStream.startAudio();
@@ -28,14 +28,14 @@ const renderVideo = async () => {
   const numberOfUser = userList.length;
   const mediaStream = client.getMediaStream();
   try {
-    remoteCanvasEle.style.height = `${vidHeight * numberOfUser}px`;
-    remoteCanvasEle.height = vidHeight * numberOfUser;
+    videoCanvas.style.height = `${vidHeight * numberOfUser}px`;
+    videoCanvas.height = vidHeight * numberOfUser;
   } catch (e) {
-    mediaStream?.updateVideoCanvasDimension(remoteCanvasEle, vidWidth, vidHeight * numberOfUser);
+    mediaStream?.updateVideoCanvasDimension(videoCanvas, vidWidth, vidHeight * numberOfUser);
   }
   for await (const [index, user] of userList.entries()) {
     if (user.bVideoOn) {
-      await mediaStream.renderVideo(remoteCanvasEle, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 3);
+      await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 3);
     }
   }
 }
@@ -63,7 +63,7 @@ startBtn.addEventListener("click", async () => {
 
 stopBtn.addEventListener("click", async () => {
   await leaveCall();
-  remoteCanvasEle.remove();
+  videoCanvas.remove();
   stopBtn.innerHTML = "Disconnected";
 });
 
