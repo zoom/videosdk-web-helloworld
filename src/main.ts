@@ -49,6 +49,8 @@ const sdkKeyInput = document.querySelector("#sdk-key") as HTMLInputElement;
 const sdkSecretInput = document.querySelector("#sdk-secret") as HTMLInputElement;
 
 startBtn.addEventListener("click", async () => {
+  sdkKey = sdkKeyInput.value;
+  sdkSecret = sdkSecretInput.value;
   if (!sdkKey || !sdkSecret) {
     alert("Please enter SDK Key and SDK Secret");
     return;
