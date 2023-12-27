@@ -4,7 +4,7 @@ import "./style.css";
 
 let sdkKey = '';
 let sdkSecret = '';
-const topic = "TestOne";
+const topic = "TestOneX";
 const role = 1;
 const vidHeight = 270;
 const vidWidth = 480;
@@ -38,6 +38,7 @@ const renderVideo = async () => {
       await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 3);
     }
   }
+  // check stop render - rerender (if video paused)
 }
 
 const leaveCall = async () => await client.leave();
@@ -76,3 +77,7 @@ sdkKeyInput.addEventListener("change", (e) => {
 sdkSecretInput.addEventListener("change", (e) => {
   sdkSecret = (e.target as HTMLInputElement).value;
 });
+
+// video on-off
+// rejoin
+// pagination
