@@ -1,10 +1,10 @@
-import ZoomVideo from "@zoom/videosdk";
+import ZoomVideo, { LiveTranscriptionLanguage } from "@zoom/videosdk";
 import { generateSignature, useWorkAroundForSafari, } from "./utils";
 import "./style.css";
 
 let sdkKey = '';
 let sdkSecret = '';
-const topic = "TestOne";
+const topic = "TestTwo";
 const role = 1;
 const vidHeight = 270;
 const vidWidth = 480;
@@ -21,6 +21,7 @@ const startCall = async () => {
   window.safari ? await useWorkAroundForSafari(client) : await mediaStream.startAudio();
   await mediaStream.startVideo();
   await renderVideo();
+  await startTranscription();
 }
 
 const renderVideo = async () => {
@@ -37,6 +38,22 @@ const renderVideo = async () => {
     if (user.bVideoOn) {
       await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 3);
     }
+  }
+}
+
+const startTranscription = async () => {
+  const liveTranscriptionTranslation = client.getLiveTranscriptionClient();
+  client.on("caption-message", (payload) => {
+    console.log(payload)
+    console.log(`${payload.displayName} said: ${payload.text}, translated to ${payload.language}`);
+  });
+  try {
+    console.log(await liveTranscriptionTranslation.getLiveTranscriptionStatus());
+    await liveTranscriptionTranslation.setSpeakingLanguage(LiveTranscriptionLanguage.English);
+    await liveTranscriptionTranslation.startLiveTranscription();
+    await liveTranscriptionTranslation.setTranslationLanguage(LiveTranscriptionLanguage.Hindi);
+  } catch (e) {
+    console.log('caught', e);
   }
 }
 
