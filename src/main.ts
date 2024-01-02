@@ -20,34 +20,52 @@ const startCall = async () => {
   // @ts-expect-error https://stackoverflow.com/questions/7944460/detect-safari-browser/42189492#42189492
   window.safari ? await useWorkAroundForSafari(client) : await mediaStream.startAudio();
   await mediaStream.startVideo();
-  await renderVideo();
+  await renderVideo({ action: 'Start', userId: client.getCurrentUserInfo().userId });
 }
 
-const renderVideo = async () => {
-  const userList = client.getAllUser().reverse();
-  const numberOfUser = userList.length;
+const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; }) => {
   const mediaStream = client.getMediaStream();
+  if (event?.action === 'Stop') {
+    await mediaStream.stopRenderVideo(videoCanvas, event.userId);
+  }
+
+  const usersWithVideo = client.getAllUser().filter(e => e.bVideoOn).reverse();
+  for await (const [index, user] of usersWithVideo.entries()) {
+    if (event.userId === user.userId) {
+      await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 2);
+    } else {
+      await mediaStream.adjustRenderedVideoPosition(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight));
+    }
+  }
+
+  const numberOfUser = usersWithVideo.length;
   try {
     videoCanvas.style.height = `${vidHeight * numberOfUser}px`;
     videoCanvas.height = vidHeight * numberOfUser;
   } catch (e) {
     mediaStream?.updateVideoCanvasDimension(videoCanvas, vidWidth, vidHeight * numberOfUser);
   }
-  for await (const [index, user] of userList.entries()) {
-    if (user.bVideoOn) {
-      await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 3);
-    }
-  }
-  // check stop render - rerender (if video paused)
 }
 
 const leaveCall = async () => await client.leave();
+
+const toggleVideo = async () => {
+  const mediaStream = client.getMediaStream();
+  if (mediaStream.isCapturingVideo()) {
+    await mediaStream.stopVideo();
+    await renderVideo({ action: 'Stop', userId: client.getCurrentUserInfo().userId });
+  } else {
+    await mediaStream.startVideo();
+    await renderVideo({ action: 'Start', userId: client.getCurrentUserInfo().userId });
+  }
+}
 
 // UI Logic
 const startBtn = document.querySelector("#start-btn") as HTMLButtonElement;
 const stopBtn = document.querySelector("#stop-btn") as HTMLButtonElement;
 const sdkKeyInput = document.querySelector("#sdk-key") as HTMLInputElement;
 const sdkSecretInput = document.querySelector("#sdk-secret") as HTMLInputElement;
+const toggleVideoBtn = document.querySelector("#toggle-video-btn") as HTMLButtonElement;
 
 startBtn.addEventListener("click", async () => {
   sdkKey = sdkKeyInput.value;
@@ -62,12 +80,18 @@ startBtn.addEventListener("click", async () => {
   startBtn.innerHTML = "Connected";
   startBtn.style.display = "none";
   stopBtn.style.display = "block";
+  toggleVideoBtn.style.display = "block";
 });
 
 stopBtn.addEventListener("click", async () => {
   await leaveCall();
   videoCanvas.remove();
   stopBtn.innerHTML = "Disconnected";
+  toggleVideoBtn.style.display = "none";
+});
+
+toggleVideoBtn.addEventListener("click", async () => {
+  await toggleVideo();
 });
 
 sdkKeyInput.addEventListener("change", (e) => {
@@ -77,7 +101,3 @@ sdkKeyInput.addEventListener("change", (e) => {
 sdkSecretInput.addEventListener("change", (e) => {
   sdkSecret = (e.target as HTMLInputElement).value;
 });
-
-// video on-off
-// rejoin
-// pagination

@@ -36,10 +36,17 @@
         Leave
       </button>
     </div>
-    <div class="p-8 text-center flex flex-1 flex-col items-center just">
+    <div class="flex flex-row self-center m-2">
+      <button
+        id="toggle-video-btn"
+        class="hidden bg-blue-500 text-white py-2 text-sm px-2 rounded w-48 self-center"
+      >
+        Toggle Video
+      </button>
+    </div>
+    <div class="p-4 m-2 text-center flex flex-1 flex-col items-center just" id="canvas-container">
       <canvas
-        class="w-[480px]"
-        id="participant-videos-canvas"
+        id="videos-canvas"
         width="480"
         height="270"
       ></canvas>
