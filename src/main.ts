@@ -4,18 +4,20 @@ import "./style.css";
 
 let sdkKey = '';
 let sdkSecret = '';
-const topic = "TestOneX";
+let videoCanvas = document.querySelector("#videos-canvas") as HTMLCanvasElement;
+const topic = "TestOne";
 const role = 1;
+const username = `User${String(new Date().getTime()).slice(6)}`;
 const vidHeight = 270;
 const vidWidth = 480;
 const client = ZoomVideo.createClient();
-const videoCanvas = document.querySelector("#participant-videos-canvas") as HTMLCanvasElement;
+
+await client.init("en-US", "Global", { patchJsMedia: true });
 
 const startCall = async () => {
   const token = generateSignature(topic, role, sdkKey, sdkSecret);
-  await client.init("en-US", "Global", { patchJsMedia: true });
   client.on("peer-video-state-change", renderVideo);
-  await client.join(topic, token, "Test");
+  await client.join(topic, token, username);
   const mediaStream = client.getMediaStream();
   // @ts-expect-error https://stackoverflow.com/questions/7944460/detect-safari-browser/42189492#42189492
   window.safari ? await useWorkAroundForSafari(client) : await mediaStream.startAudio();
@@ -84,10 +86,19 @@ startBtn.addEventListener("click", async () => {
 });
 
 stopBtn.addEventListener("click", async () => {
-  await leaveCall();
   videoCanvas.remove();
-  stopBtn.innerHTML = "Disconnected";
   toggleVideoBtn.style.display = "none";
+  await leaveCall();
+  const newCanvas = document.createElement("canvas");
+  newCanvas.id = "videos-canvas";
+  newCanvas.width = vidWidth;
+  newCanvas.height = vidHeight;
+  (document.querySelector("#canvas-container") as HTMLDivElement).appendChild(newCanvas);
+  videoCanvas = newCanvas;
+  stopBtn.style.display = "none";
+  startBtn.style.display = "block";
+  startBtn.innerHTML = "Join";
+  startBtn.disabled = false;
 });
 
 toggleVideoBtn.addEventListener("click", async () => {
