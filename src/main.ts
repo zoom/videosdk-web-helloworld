@@ -1,5 +1,5 @@
-import ZoomVideo from "@zoom/videosdk";
-import { generateSignature, useWorkAroundForSafari, } from "./utils";
+import ZoomVideo, { LiveTranscriptionLanguage } from "@zoom/videosdk";
+import { generateSignature, useWorkAroundForSafari } from "./utils";
 import "./style.css";
 
 let sdkKey = '';
@@ -23,7 +23,8 @@ const startCall = async () => {
   window.safari ? await useWorkAroundForSafari(client) : await mediaStream.startAudio();
   await mediaStream.startVideo();
   await renderVideo({ action: 'Start', userId: client.getCurrentUserInfo().userId });
-}
+  await startTranscription();
+};
 
 const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; }) => {
   const mediaStream = client.getMediaStream();
@@ -47,7 +48,24 @@ const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; })
   } catch (e) {
     mediaStream?.updateVideoCanvasDimension(videoCanvas, vidWidth, vidHeight * numberOfUser);
   }
-}
+};
+
+const startTranscription = async () => {
+  const liveTranscriptionTranslation = client.getLiveTranscriptionClient();
+  const captionsElement = document.querySelector("#captions") as HTMLDivElement;
+  client.on("caption-message", (payload) => {
+    const caption = document.getElementById(payload.msgId) || document.createElement("div");
+    caption.setAttribute("id", payload.msgId);
+    caption.innerHTML = `${payload.displayName} said: ${payload.text}`;
+    captionsElement.appendChild(caption);
+  });
+  try {
+    await liveTranscriptionTranslation.startLiveTranscription();
+    await liveTranscriptionTranslation.setSpeakingLanguage(LiveTranscriptionLanguage.English);
+  } catch (e) {
+    console.log("error:", e);
+  }
+};
 
 const leaveCall = async () => await client.leave();
 
@@ -87,6 +105,7 @@ startBtn.addEventListener("click", async () => {
 
 stopBtn.addEventListener("click", async () => {
   videoCanvas.remove();
+  (document.querySelector("#captions") as HTMLDivElement).innerHTML = '';
   toggleVideoBtn.style.display = "none";
   await leaveCall();
   const newCanvas = document.createElement("canvas");
