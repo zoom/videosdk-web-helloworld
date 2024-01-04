@@ -7,7 +7,7 @@ let sdkSecret = '';
 let videoCanvas = document.querySelector("#videos-canvas") as HTMLCanvasElement;
 const topic = "TestOne";
 const role = 1;
-const username = `User-${String(new Date().getTime()).slice(6)}`;
+const username = `user-${String(new Date().getTime()).slice(6)}`;
 const vidHeight = 270;
 const vidWidth = 480;
 const client = ZoomVideo.createClient();
@@ -26,7 +26,7 @@ const startCall = async () => {
   await mediaStream.startVideo();
   // render the video of the current user
   await renderVideo({ action: 'Start', userId: client.getCurrentUserInfo().userId });
-}
+};
 
 const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; }) => {
   const mediaStream = client.getMediaStream();
@@ -38,12 +38,12 @@ const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; })
   const usersWithVideo = client.getAllUser().filter(e => e.bVideoOn).reverse();
   // iterate through the list and render the video of each user
   for await (const [index, user] of usersWithVideo.entries()) {
-    if (event.userId === user.userId) {
+    if (event.userId === user.userId && user.bVideoOn) {
       // if it's a new user, render the video
-      await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 2);
-    } else {
+      await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 2).catch(e => console.log('renderVideo: ', e));
+    } else if (user.bVideoOn) {
       // if it's an existing user, adjust the position of the video
-      await mediaStream.adjustRenderedVideoPosition(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight));
+      await mediaStream.adjustRenderedVideoPosition(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight)).catch(e => console.log('adjustRenderedVideoPosition: ', e));;
     }
   }
 
@@ -54,9 +54,9 @@ const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; })
     videoCanvas.height = vidHeight * numberOfUser;
   } catch (e) {
     // if the canvas is handled offscreen, update using this function call
-    mediaStream?.updateVideoCanvasDimension(videoCanvas, vidWidth, vidHeight * numberOfUser);
+    await mediaStream?.updateVideoCanvasDimension(videoCanvas, vidWidth, vidHeight * numberOfUser);
   }
-}
+};
 
 const leaveCall = async () => await client.leave();
 
@@ -71,7 +71,7 @@ const toggleVideo = async () => {
     // update the canvas when the video is started
     await renderVideo({ action: 'Start', userId: client.getCurrentUserInfo().userId });
   }
-}
+};
 
 // UI Logic
 const startBtn = document.querySelector("#start-btn") as HTMLButtonElement;
