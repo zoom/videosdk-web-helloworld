@@ -93,7 +93,7 @@ const toggleVideo = async () => {
     // update the canvas when the video is started
     await renderVideo({ action: 'Start', userId: client.getCurrentUserInfo().userId });
   }
-}
+};
 
 // UI Logic
 const startBtn = document.querySelector("#start-btn") as HTMLButtonElement;
