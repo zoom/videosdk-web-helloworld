@@ -7,7 +7,7 @@ let sdkSecret = '';
 let videoCanvas = document.querySelector("#videos-canvas") as HTMLCanvasElement;
 const topic = "TestOne";
 const role = 1;
-const username = `User${String(new Date().getTime()).slice(6)}`;
+const username = `user-${String(new Date().getTime()).slice(6)}`;
 const vidHeight = 270;
 const vidWidth = 480;
 const client = ZoomVideo.createClient();
@@ -52,19 +52,23 @@ const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; })
 
 const startTranscription = async () => {
   const liveTranscriptionTranslation = client.getLiveTranscriptionClient();
-  const captionsElement = document.querySelector("#captions") as HTMLDivElement;
+  const captionsContainer = document.querySelector("#messages") as HTMLDivElement;
   client.on("caption-message", (payload) => {
-    const caption = document.getElementById(payload.msgId) || document.createElement("div");
-    caption.setAttribute("id", payload.msgId);
-    caption.innerHTML = `${payload.displayName} said: ${payload.text}`;
-    captionsElement.appendChild(caption);
+    const captionEle = document.getElementById(payload.msgId);
+    if (captionEle) {
+      captionEle.innerHTML = `${payload.displayName}: ${payload.text}`;
+    } else {
+      const newCaptionEle = document.createElement("p");
+      newCaptionEle.setAttribute("id", payload.msgId);
+      newCaptionEle.innerHTML = `${payload.displayName}: ${payload.text}`;
+      username !== payload.displayName ?
+        newCaptionEle.classList.add("text-sm", "bg-blue-500", "text-white", "rounded", "p-2", "w-fit", "my-2", "mr-32")
+        : newCaptionEle.classList.add("text-sm", "bg-gray-200", "text-black", "rounded", "p-2", "w-fit", "my-2", "ml-32", "self-end");
+      captionsContainer.appendChild(newCaptionEle);
+    }
   });
-  try {
-    await liveTranscriptionTranslation.startLiveTranscription();
-    await liveTranscriptionTranslation.setSpeakingLanguage(LiveTranscriptionLanguage.English);
-  } catch (e) {
-    console.log("error:", e);
-  }
+  await liveTranscriptionTranslation.startLiveTranscription();
+  await liveTranscriptionTranslation.setSpeakingLanguage(LiveTranscriptionLanguage.English);
 };
 
 const leaveCall = async () => await client.leave();
@@ -105,7 +109,7 @@ startBtn.addEventListener("click", async () => {
 
 stopBtn.addEventListener("click", async () => {
   videoCanvas.remove();
-  (document.querySelector("#captions") as HTMLDivElement).innerHTML = '';
+  (document.querySelector("#messages") as HTMLDivElement).innerHTML = '<h3 class="text-center text-lg font-bold">Captions</h3>';
   toggleVideoBtn.style.display = "none";
   await leaveCall();
   const newCanvas = document.createElement("canvas");
