@@ -1,5 +1,6 @@
 import { VideoClient } from "@zoom/videosdk";
 import KJUR from "jsrsasign";
+import { vidHeight, vidWidth } from "./main";
 
 // You should sign your JWT with a backend service in a production use-case
 export function generateSignature(sessionName: string, role: number, sdkKey: string, sdkSecret: string) {
@@ -40,4 +41,11 @@ export const useWorkAroundForSafari = async (client: typeof VideoClient) => {
       }
     }
   })
+}
+
+export const getVideoXandY = (index: number, totalUser: number) => {
+  const gridSize = Math.ceil(Math.sqrt(totalUser));
+  const x = (index % gridSize) * vidWidth;
+  const y = (gridSize - Math.floor(index / gridSize) - 1) * vidHeight;
+  return { x, y };
 }
