@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#my-self-view-video,
+#my-self-view-canvas {
+  width: 480px;
+  height: auto;
+}

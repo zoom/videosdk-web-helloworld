@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoom VideoSDK Quickstart</title>
+</head>
+
+<body class="flex flex-1 flex-col h-screen">
+  <h1 class="text-4xl font-bold text-center p-8">Zoom VideoSDK Quickstart</h1>
+  <div class="flex flex-row self-center mb-8">
+    <label for="sdk-key" class="mr-4"> SDK Key: </label>
+    <input type="text" id="sdk-key" class="border border-gray-400 rounded mr-4" />
+    <label for="sdk-secret" class="mr-4"> SDK Secret: </label>
+    <input type="text" id="sdk-secret" class="border border-gray-400 rounded mr-4" />
+  </div>
+  <div class="flex flex-row self-center">
+    <button id="start-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded mb-4 w-64 self-center">
+      Join
+    </button>
+    <button id="stop-btn" class="hidden bg-blue-500 text-white font-bold py-2 px-4 rounded mb-4 w-64 self-center">
+      Leave
+    </button>
+  </div>
+  <div class="flex flex-row self-center m-2">
+    <button id="toggle-video-btn" class="hidden bg-blue-500 text-white py-2 text-sm px-2 rounded w-48 self-center">
+      Toggle Video
+    </button>
+  </div>
+  <div class="p-4 m-2 text-center flex flex-1 flex-col items-center just" id="canvas-container">
+    <canvas id="videos-canvas" width="480" height="270" class="max-w-[80vw] h-auto"></canvas>
+  </div>
+  <div class="text-center flex text-sm p-2 flex-col items-center justify-end">
+    Do not expose your SDK Secret to the client, when using this in production
+    please make sure to use a backend service to sign tokens.
+  </div>
+  <script src="/coi-serviceworker.js"></script>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
