@@ -1,5 +1,5 @@
 import ZoomVideo from "@zoom/videosdk";
-import { generateSignature, useWorkAroundForSafari, } from "./utils";
+import { generateSignature, getVideoXandY, useWorkAroundForSafari, } from "./utils";
 import "./style.css";
 
 let sdkKey = '';
@@ -7,10 +7,10 @@ let sdkSecret = '';
 let videoCanvas = document.querySelector("#videos-canvas") as HTMLCanvasElement;
 const topic = "TestOne";
 const role = 1;
-const username = `user-${String(new Date().getTime()).slice(6)}`;
-const vidHeight = 270;
-const vidWidth = 480;
+const username = `User-${String(new Date().getTime()).slice(6)}`;
 const client = ZoomVideo.createClient();
+export const vidHeight = 270;
+export const vidWidth = 480;
 
 await client.init("en-US", "Global", { patchJsMedia: true });
 
@@ -36,25 +36,29 @@ const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; })
 
   // get user list with video on
   const usersWithVideo = client.getAllUser().filter(e => e.bVideoOn).reverse();
+  const numberOfUser = usersWithVideo.length;
   // iterate through the list and render the video of each user
   for await (const [index, user] of usersWithVideo.entries()) {
+    // calculate the x and y position of the video
+    const { x, y } = getVideoXandY(index, numberOfUser);
     if (event.userId === user.userId && user.bVideoOn) {
       // if it's a new user, render the video
-      await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight), 2).catch(e => console.log('renderVideo: ', e));
+      await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, x, y, 2);
     } else if (user.bVideoOn) {
       // if it's an existing user, adjust the position of the video
-      await mediaStream.adjustRenderedVideoPosition(videoCanvas, user.userId, vidWidth, vidHeight, 0, (index * vidHeight)).catch(e => console.log('adjustRenderedVideoPosition: ', e));;
+      await mediaStream.adjustRenderedVideoPosition(videoCanvas, user.userId, vidWidth, vidHeight, x, y).catch(e => console.log(e));
     }
   }
 
-  const numberOfUser = usersWithVideo.length;
+  const canvasHeight = numberOfUser > 4 ? vidHeight * 3 : numberOfUser > 1 ? vidHeight * 2 : vidHeight;
+  const canvasWidth = numberOfUser > 4 ? vidWidth * 3 : numberOfUser > 1 ? vidWidth * 2 : vidWidth;
   try {
     // adjust the height of the canvas to fit all the videos
-    videoCanvas.style.height = `${vidHeight * numberOfUser}px`;
-    videoCanvas.height = vidHeight * numberOfUser;
+    videoCanvas.height = canvasHeight;
+    videoCanvas.width = canvasWidth;
   } catch (e) {
     // if the canvas is handled offscreen, update using this function call
-    await mediaStream?.updateVideoCanvasDimension(videoCanvas, vidWidth, vidHeight * numberOfUser);
+    mediaStream?.updateVideoCanvasDimension(videoCanvas, canvasWidth, canvasHeight);
   }
 };
 
