@@ -2,8 +2,8 @@ import ZoomVideo from "@zoom/videosdk";
 import { generateSignature, getVideoXandY, useWorkAroundForSafari, } from "./utils";
 import "./style.css";
 
-let sdkKey = '';
-let sdkSecret = '';
+const sdkKey = import.meta.env.VITE_SDK_KEY as string;
+const sdkSecret = import.meta.env.VITE_SDK_SECRET as string;
 let videoCanvas = document.querySelector("#videos-canvas") as HTMLCanvasElement;
 const topic = "TestOne";
 const role = 1;
@@ -80,15 +80,11 @@ const toggleVideo = async () => {
 // UI Logic
 const startBtn = document.querySelector("#start-btn") as HTMLButtonElement;
 const stopBtn = document.querySelector("#stop-btn") as HTMLButtonElement;
-const sdkKeyInput = document.querySelector("#sdk-key") as HTMLInputElement;
-const sdkSecretInput = document.querySelector("#sdk-secret") as HTMLInputElement;
 const toggleVideoBtn = document.querySelector("#toggle-video-btn") as HTMLButtonElement;
 
 startBtn.addEventListener("click", async () => {
-  sdkKey = sdkKeyInput.value;
-  sdkSecret = sdkSecretInput.value;
   if (!sdkKey || !sdkSecret) {
-    alert("Please enter SDK Key and SDK Secret");
+    alert("Please enter SDK Key and SDK Secret in the .env file");
     return;
   }
   startBtn.innerHTML = "Connecting...";
@@ -118,12 +114,4 @@ stopBtn.addEventListener("click", async () => {
 
 toggleVideoBtn.addEventListener("click", async () => {
   await toggleVideo();
-});
-
-sdkKeyInput.addEventListener("change", (e) => {
-  sdkKey = (e.target as HTMLInputElement).value;
-});
-
-sdkSecretInput.addEventListener("change", (e) => {
-  sdkSecret = (e.target as HTMLInputElement).value;
 });
