@@ -19,13 +19,11 @@ To get started, clone the repo:
 1. Create a `.env` file in the root directory of the project, you can do this by copying the `.env.example` file (`cp .env.example .env`) and replacing the values with your own. The `.env` file should look like this:
 
    ```
-   VITE_SDK_KEY=YourZoomVideoSDKKey
-   VITE_SDK_SECRET=YourZoomVideoSDKSecret
+   VITE_SDK_KEY=abc123XXXXXXXXXX
+   VITE_SDK_SECRET=abc123XXXXXXXXXX
    ```
 
    Replace `YourZoomVideoSDKKey` and `YourZoomVideoSDKSecret` with your Zoom Video SDK key and secret.
-
-   > Note: Do not expose your SDK Secret to the client, when using the Video SDK in production please make sure to use a backend service to sign the tokens.
 
 1. Run the app:
 
@@ -47,4 +45,4 @@ If you're looking for help, try [Developer Support](https://devsupport.zoom.us) 
 
 ## Disclaimer
 
-Do not expose your SDK Secret to the client, when using the Video SDK in production please make sure to use a backend service to sign the tokens.
+Do not expose your credentials to the client, when using the Video SDK in production please make sure to use a backend service to sign the tokens. Don't store credentials in plain text, as this is a sample app we're using an `.env` for sake of simplicity.
