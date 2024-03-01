@@ -8,8 +8,8 @@
   <title>Zoom VideoSDK Quickstart</title>
 </head>
 
-<body class="flex flex-1 flex-col h-screen">
-  <h1 class="text-4xl font-bold text-center p-8">Zoom VideoSDK Quickstart</h1>
+<body class="flex flex-1 flex-col h-full min-h-screen relative">
+  <h1 class="text-3xl font-bold text-center my-4">Zoom VideoSDK Quickstart</h1>
   <div class="flex flex-row self-center">
     <button id="start-btn" class="bg-blue-500 text-white font-bold py-2 px-4 rounded mb-4 w-64 self-center">
       Join
@@ -23,10 +23,8 @@
       Toggle Video
     </button>
   </div>
-  <div class="p-4 m-2 text-center flex flex-1 flex-col items-center just" id="canvas-container">
-    <canvas id="videos-canvas" width="480" height="270" class="max-w-[80vw] h-auto"></canvas>
-  </div>
-  <div class="text-center flex text-sm p-2 flex-col items-center justify-end">
+  <video-player-container></video-player-container>
+  <div class="text-center absolute bottom-2 w-full">
     Do not expose your SDK Secret to the client, when using this in production
     please make sure to use a backend service to sign tokens.
   </div>

@@ -1,17 +1,14 @@
-import ZoomVideo from "@zoom/videosdk";
-import { generateSignature, getVideoXandY, useWorkAroundForSafari, } from "./utils";
+import ZoomVideo, { VideoPlayer, VideoQuality } from "@zoom/videosdk";
+import { generateSignature, useWorkAroundForSafari, } from "./utils";
 import "./style.css";
 
 const sdkKey = import.meta.env.VITE_SDK_KEY as string;
 const sdkSecret = import.meta.env.VITE_SDK_SECRET as string;
-let videoCanvas = document.querySelector("#videos-canvas") as HTMLCanvasElement;
+const videoContainer = document.querySelector('video-player-container') as HTMLElement;
 const topic = "TestOne";
 const role = 1;
 const username = `User-${String(new Date().getTime()).slice(6)}`;
 const client = ZoomVideo.createClient();
-export const vidHeight = 270;
-export const vidWidth = 480;
-
 await client.init("en-US", "Global", { patchJsMedia: true });
 
 const startCall = async () => {
@@ -30,39 +27,24 @@ const startCall = async () => {
 
 const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; }) => {
   const mediaStream = client.getMediaStream();
-  if (event?.action === 'Stop') {
-    await mediaStream.stopRenderVideo(videoCanvas, event.userId);
-  }
-
-  // get user list with video on
-  const usersWithVideo = client.getAllUser().filter(e => e.bVideoOn).reverse();
-  const numberOfUser = usersWithVideo.length;
-  // iterate through the list and render the video of each user
-  for await (const [index, user] of usersWithVideo.entries()) {
-    // calculate the x and y position of the video
-    const { x, y } = getVideoXandY(index, numberOfUser);
-    if (event.userId === user.userId && user.bVideoOn) {
-      // if it's a new user, render the video
-      await mediaStream.renderVideo(videoCanvas, user.userId, vidWidth, vidHeight, x, y, 2);
-    } else if (user.bVideoOn) {
-      // if it's an existing user, adjust the position of the video
-      await mediaStream.adjustRenderedVideoPosition(videoCanvas, user.userId, vidWidth, vidHeight, x, y).catch(e => console.log(e));
-    }
-  }
-
-  const canvasHeight = numberOfUser > 4 ? vidHeight * 3 : numberOfUser > 1 ? vidHeight * 2 : vidHeight;
-  const canvasWidth = numberOfUser > 4 ? vidWidth * 3 : numberOfUser > 1 ? vidWidth * 2 : vidWidth;
-  try {
-    // adjust the height of the canvas to fit all the videos
-    videoCanvas.height = canvasHeight;
-    videoCanvas.width = canvasWidth;
-  } catch (e) {
-    // if the canvas is handled offscreen, update using this function call
-    mediaStream?.updateVideoCanvasDimension(videoCanvas, canvasWidth, canvasHeight);
+  if (event.action === 'Stop') {
+    const element = await mediaStream.detachVideo(event.userId);
+    Array.isArray(element) ? element.forEach((el) => el.remove()) : element.remove();
+  } else {
+    const userVideo = await mediaStream.attachVideo(event.userId, VideoQuality.Video_360P);
+    videoContainer.appendChild(userVideo as VideoPlayer);
   }
 };
 
-const leaveCall = async () => await client.leave();
+const leaveCall = async () => {
+  const mediaStream = client.getMediaStream();
+  for (const user of client.getAllUser()) {
+    const element = await mediaStream.detachVideo(user.userId);
+    Array.isArray(element) ? element.forEach((el) => el.remove()) : element.remove();
+  }
+  client.off("peer-video-state-change", renderVideo);
+  await client.leave();
+}
 
 const toggleVideo = async () => {
   const mediaStream = client.getMediaStream();
@@ -97,15 +79,8 @@ startBtn.addEventListener("click", async () => {
 });
 
 stopBtn.addEventListener("click", async () => {
-  videoCanvas.remove();
   toggleVideoBtn.style.display = "none";
   await leaveCall();
-  const newCanvas = document.createElement("canvas");
-  newCanvas.id = "videos-canvas";
-  newCanvas.width = vidWidth;
-  newCanvas.height = vidHeight;
-  (document.querySelector("#canvas-container") as HTMLDivElement).appendChild(newCanvas);
-  videoCanvas = newCanvas;
   stopBtn.style.display = "none";
   startBtn.style.display = "block";
   startBtn.innerHTML = "Join";
