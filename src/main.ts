@@ -32,7 +32,8 @@ const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; })
     Array.isArray(element) ? element.forEach((el) => el.remove()) : element.remove();
   } else {
     const userVideo = await mediaStream.attachVideo(event.userId, VideoQuality.Video_360P);
-    videoContainer.appendChild(userVideo as VideoPlayer);
+    if ('type' in userVideo) console.log(userVideo.type, userVideo.reason);
+    else videoContainer.appendChild(userVideo as VideoPlayer);
   }
 };
 
