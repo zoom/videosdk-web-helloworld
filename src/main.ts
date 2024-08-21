@@ -1,9 +1,11 @@
 import ZoomVideo, { VideoPlayer, VideoQuality } from "@zoom/videosdk";
-import { generateSignature, useWorkAroundForSafari, } from "./utils";
+import { generateSignature } from "./utils";
 import "./style.css";
 
+// You should sign your JWT with a backend service in a production use-case
 const sdkKey = import.meta.env.VITE_SDK_KEY as string;
 const sdkSecret = import.meta.env.VITE_SDK_SECRET as string;
+
 const videoContainer = document.querySelector('video-player-container') as HTMLElement;
 const topic = "TestOne";
 const role = 1;
@@ -18,8 +20,7 @@ const startCall = async () => {
   client.on("peer-video-state-change", renderVideo);
   await client.join(topic, token, username);
   const mediaStream = client.getMediaStream();
-  // @ts-expect-error https://stackoverflow.com/questions/7944460/detect-safari-browser/42189492#42189492
-  window.safari ? await useWorkAroundForSafari(client) : await mediaStream.startAudio();
+  await mediaStream.startAudio();
   await mediaStream.startVideo();
   // render the video of the current user
   await renderVideo({ action: 'Start', userId: client.getCurrentUserInfo().userId });

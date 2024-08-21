@@ -1,4 +1,3 @@
-import { VideoClient } from "@zoom/videosdk";
 import KJUR from "jsrsasign";
 
 // You should sign your JWT with a backend service in a production use-case
@@ -20,24 +19,4 @@ export function generateSignature(sessionName: string, role: number, sdkKey: str
   const sPayload = JSON.stringify(oPayload);
   const sdkJWT = KJUR.KJUR.jws.JWS.sign("HS256", sHeader, sPayload, sdkSecret);
   return sdkJWT;
-}
-
-// For safari desktop browsers, you need to start audio after the media-sdk-change event is triggered
-export const useWorkAroundForSafari = async (client: typeof VideoClient) => {
-  let audioDecode: boolean
-  let audioEncode: boolean
-  client.on('media-sdk-change', (payload) => {
-    console.log('media-sdk-change', payload)
-    if (payload.type === 'audio' && payload.result === 'success') {
-      if (payload.action === 'encode') {
-        audioEncode = true
-      } else if (payload.action === 'decode') {
-        audioDecode = true
-      }
-      if (audioEncode && audioDecode) {
-        console.log('start audio')
-        client.getMediaStream().startAudio()
-      }
-    }
-  })
 }
