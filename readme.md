@@ -2,7 +2,7 @@
 
 Use of this sample app is subject to our [Terms of Use](https://explore.zoom.us/en/video-sdk-terms/).
 
-The [Zoom Video SDK for web](https://developers.zoom.us/docs/video-sdk/web/) enables you to build custom video experiences on a webpage with Zoom's core technology through a highly optimized WebAssembly module.
+The [Zoom Video SDK for web](https://developers.zoom.us/docs/video-sdk/web/) enables you to build custom video experiences on a webpage with Zoom's core technology.
 
 ## Installation
 
