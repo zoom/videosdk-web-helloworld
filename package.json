@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@types/jsrsasign": "^10.5.13",
-    "@zoom/videosdk": "^2.2.5",
+    "@zoom/videosdk": "^2.2.10",
     "jsrsasign": "^11.1.0"
   }
 }
