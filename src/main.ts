@@ -30,7 +30,7 @@ const renderVideo = async (event: { action: "Start" | "Stop"; userId: number; })
   const mediaStream = client.getMediaStream();
   if (event.action === 'Stop') {
     const element = await mediaStream.detachVideo(event.userId);
-    Array.isArray(element) ? element.forEach((el) => el.remove()) : element.remove();
+    Array.isArray(element) ? element.forEach((el) => el.remove()) : element?.remove();
   } else {
     const userVideo = await mediaStream.attachVideo(event.userId, VideoQuality.Video_360P);
     videoContainer.appendChild(userVideo as VideoPlayer);
@@ -41,7 +41,7 @@ const leaveCall = async () => {
   const mediaStream = client.getMediaStream();
   for (const user of client.getAllUser()) {
     const element = await mediaStream.detachVideo(user.userId);
-    Array.isArray(element) ? element.forEach((el) => el.remove()) : element.remove();
+    Array.isArray(element) ? element.forEach((el) => el.remove()) : element?.remove();
   }
   client.off("peer-video-state-change", renderVideo);
   await client.leave();
