@@ -16,7 +16,7 @@
     "vite": "^7.1.3"
   },
   "dependencies": {
-    "@zoom/videosdk": "^2.2.10",
+    "@zoom/videosdk": "^2.2.12",
     "jsrsasign": "^11.1.0"
   }
 }
