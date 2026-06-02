@@ -19,9 +19,9 @@
     "jsrsasign": "^11.1.0",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.2",
-    "vite": "^7.3.1"
+    "vite": "^7.3.5"
   },
   "dependencies": {
-    "@zoom/videosdk": "^2.4.2"
+    "@zoom/videosdk": "^2.4.5"
   }
 }
