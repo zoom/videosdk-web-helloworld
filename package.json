@@ -22,6 +22,6 @@
     "vite": "^7.3.5"
   },
   "dependencies": {
-    "@zoom/videosdk": "^2.4.5"
+    "@zoom/videosdk": "^2.5.0"
   }
 }
